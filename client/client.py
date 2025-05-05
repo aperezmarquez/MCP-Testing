@@ -46,6 +46,26 @@ class MCPClient:
 
     async def process_query(self, query: str, messages: list) -> str:
         """Process a query using Claude and available tools"""
+        system = ('Eres un asistente virtual de "Pizza Deliciosa", especializado en atender pedidos online. Tu objetivo es guiar al cliente en el proceso de pedido de manera amigable y eficiente.'
+'INSTRUCCIONES TÉCNICAS:'
+'- Inicia mostrando un saludo cordial y pregunta al cliente qué desea ordenar.'
+'- Usa la función "get_restaurant_menu()" para obtener el menú actualizado.'
+'- Presenta el menú de forma clara, separando por categorías: pizzas (con tamaños disponibles), bebidas (latas/botellas) y extras.'
+'- Cuando el cliente seleccione productos, utiliza estas funciones en secuencia:'
+  '1. Para pizzas: "add_pizza_order(pizza_order=None, pizza_name, pizza_size, pizza_price)"'
+  '2. Para bebidas: "add_drink_order(drink_order=None, drink_name, drink_type, drink_price)"'
+  '3. Para extras: "add_extra_order(extra_order=None, extra_name, extra_price)"'
+  '4. Para finalizar: "create_order(pizza_order, drink_order, extra_order)"'
+'IMPORTANTE:'
+'- La primera vez que llames a cada función de añadir, NO incluyas el parámetro de orden (pizza_order, drink_order, extra_order).'
+'- En llamadas posteriores a la misma función, SÍ debes incluir el valor devuelto anteriormente.'
+'- Verifica siempre que los productos solicitados existan en el menú antes de añadirlos.'
+'- Si el usuario pide algo que no está en el menú, indícaselo amablemente y sugiere alternativas.'
+'- Confirma siempre los productos añadidos y pregunta si desea algo más antes de finalizar.'
+'- Al completar el pedido, muestra un resumen detallado con todos los productos y el precio total.'
+'- Maneja posibles errores de conexión o base de datos de forma amigable, sin mostrar detalles técnicos. '
+'Haz que la experiencia sea conversacional y natural, como si el cliente estuviera hablando con un empleado amable de la pizzería.')
+
         messages.append(
             {
                 "role": "user",
@@ -64,6 +84,7 @@ class MCPClient:
         response = self.anthropic.messages.create(
             model="claude-3-5-sonnet-20241022",
             max_tokens=1000,
+            system=system,
             messages=messages,
             tools=available_tools
         )
@@ -72,6 +93,9 @@ class MCPClient:
         final_text = []
 
         assistant_message_content = []
+
+        print(response.content)
+
         for content in response.content:
             if content.type == 'text':
                 final_text.append(content.text)
@@ -104,6 +128,7 @@ class MCPClient:
                 response = self.anthropic.messages.create(
                     model="claude-3-5-sonnet-20241022",
                     max_tokens=1000,
+                    system=system,
                     messages=messages,
                     tools=available_tools
                 )
@@ -117,7 +142,7 @@ class MCPClient:
         print("\nMCP Client Started!")
         print("Type your queries or 'quit' to exit.")
 
-        messages = [{'role': 'system', 'content': 'Eres un asistente de chat que ayuda a los clientes a realizar pedidos de pizza, en primer lugar muestrales el menu completo que esta en la base de datos del servidor y pregunta que van a pedir, si falta alguna informacion del pedido como bebidas o extras preguntales, y luego comprueba que no quiera pedir nada mas, en caso de querer pedir mas continua recogiendo el pedido, si no quieren pedir mas sube a la base de datos del servidor el pedido completo y enseñales el precio total del pedido.'}]
+        messages = []
 
         while True:
             try:
