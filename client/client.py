@@ -46,14 +46,14 @@ class MCPClient:
         tools = response.tools
         print("\nConnected to server with tools:", [tool.name for tool in tools])
 
-    async def process_query(self, query: str) -> str:
+    async def process_query(self, query: str, messages: list) -> str:
         """Process a query using Claude and available tools"""
-        messages = [
+        messages.append(
             {
                 "role": "user",
                 "content": query
             }
-        ]
+        )
 
         response = await self.session.list_tools()
         available_tools = [{
@@ -112,12 +112,14 @@ class MCPClient:
 
                 final_text.append(response.content[0].text)
 
-        return "\n".join(final_text)
+        return messages, "\n".join(final_text)
 
     async def chat_loop(self):
         """Run an interactive chat loop"""
         print("\nMCP Client Started!")
         print("Type your queries or 'quit' to exit.")
+
+        messages = [{'role': 'system', 'content': 'Eres un asistente de chat que ayuda a los clientes a realizar pedidos de pizza, en primer lugar muestrales el menu completo que esta en la base de datos del servidor y pregunta que van a pedir, si falta alguna informacion del pedido como bebidas o extras preguntales, y luego comprueba que no quiera pedir nada mas, en caso de querer pedir mas continua recogiendo el pedido, si no quieren pedir mas sube a la base de datos del servidor el pedido completo y enseñales el precio total del pedido.'}]
 
         while True:
             try:
@@ -126,8 +128,8 @@ class MCPClient:
                 if query.lower() == 'quit':
                     break
 
-                response = await self.process_query(query)
-                print("\n" + response)
+                messages, respuesta = await self.process_query(query, messages)
+                print("\n" + respuesta)
 
             except Exception as e:
                 print(f"\nError: {str(e)}")
