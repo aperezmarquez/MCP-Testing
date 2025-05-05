@@ -1,14 +1,22 @@
 import mysql.connector
 import json
 from decimal import Decimal
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 def connect_db():
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASSWORD")
+    db_name = os.getenv("DB_NAME")
+
     # Connect to the database
     conn = mysql.connector.connect(
         host="localhost",
-        user="pizza_user",
-        password="pass1234",
-        database="pizza_restaurant"
+        user=user,
+        password=password,
+        database=db_name
     )
     return conn
 
