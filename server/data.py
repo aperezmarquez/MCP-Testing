@@ -34,6 +34,8 @@ def decimal_converter(obj):
     raise TypeError("Type not serializable")
 
 def select_all(table, conn):
+    cursor = conn.cursor()
+
     cursor.execute(f"SELECT * FROM {table}")
 
     # Fetch all rows

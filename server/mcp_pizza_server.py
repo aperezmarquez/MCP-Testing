@@ -2,27 +2,25 @@ from typing import Any
 import httpx
 from mcp.server.fastmcp import FastMCP
 from data import connect_db, get_menu, create_order, close_db
+from decimal import Decimal
+import time
 
 # Initialize FastMCP server
 mcp = FastMCP("pizza-restaurant")
 
 @mcp.tool()
-async def get_restaurant_menu():
-    try:
-        conn = await connect_db()
-    except Exception as e:
-        print(f"Error connecting to database: {e}")
+def get_restaurant_menu():
+    conn = connect_db()
 
     try:
-        menu = await get_menu(conn)
+        menu = get_menu(conn)
     except Exception as e:
         print(f"Error getting menu: {e}")
         menu = None
 
-    await close_db(conn)
+    close_db(conn)
     return menu
 
-@mcp.tool()
 def add_pizza_order(pizza_order, pizza_name, pizza_size, pizza_price):
     if not pizza_order:
         pizza_order = [
@@ -33,7 +31,6 @@ def add_pizza_order(pizza_order, pizza_name, pizza_size, pizza_price):
     
     return pizza_order
 
-@mcp.tool()
 def add_drink_order(drink_order, drink_name, drink_type, drink_price):
     if not drink_order:
         drink_order = [
@@ -44,7 +41,6 @@ def add_drink_order(drink_order, drink_name, drink_type, drink_price):
 
     return drink_order
 
-@mcp.tool()
 def add_extra_order(extra_order, extra_name, extra_price):
     if not extra_order:
         extra_order = [
@@ -56,20 +52,22 @@ def add_extra_order(extra_order, extra_name, extra_price):
     return extra_order
 
 @mcp.tool()
-async def create_order(pizza_order, drink_order, extra_order):
+def create_final_order(pizza_name, pizza_size, pizza_price, drink_name, drink_type, drink_price, extra_name, extra_price):
+    conn = connect_db()
+
+    pizza_order = add_pizza_order(None, pizza_name, pizza_size, pizza_price)
+    drink_order = add_drink_order(None, drink_name, drink_type, drink_price)
+    extra_order = add_extra_order(None, extra_name, extra_price)
+
     try:
-        conn = await connect_db()
-    except Exception as e:
-        print(f"Error connecting to database: {e}")
-    
-    try:
-        order = await create_order(pizza_order, drink_order, extra_order, conn)
+        order = create_order(pizza_order, drink_order, extra_order, conn)
     except Exception as e:
         print(f"Error creating order: {e}")
 
-    await close_db(conn)
+    close_db(conn)
     return order
 
 if __name__ == "__main__":
     # Initialize and run the server
     mcp.run(transport='stdio')
+
