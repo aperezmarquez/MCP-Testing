@@ -69,3 +69,7 @@ async def create_order(pizza_order, drink_order, extra_order):
 
     await close_db(conn)
     return order
+
+if __name__ == "__main__":
+    # Initialize and run the server
+    mcp.run(transport='stdio')
