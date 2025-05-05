@@ -21,16 +21,14 @@ class MCPClient:
         """Connect to an MCP server
 
         Args:
-            server_script_path: Path to the server script (.py or .js)
+            server_script_path: Path to the server script (.py)
         """
         is_python = server_script_path.endswith('.py')
-        is_js = server_script_path.endswith('.js')
-        if not (is_python or is_js):
-            raise ValueError("Server script must be a .py or .js file")
+        if not is_python:
+            raise ValueError("Server script must be a .py file")
 
-        command = "python" if is_python else "node"
         server_params = StdioServerParameters(
-            command=command,
+            command="python",
             args=[server_script_path],
             env=None
         )
