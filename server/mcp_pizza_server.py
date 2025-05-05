@@ -37,7 +37,7 @@ def add_pizza_order(pizza_order, pizza_name, pizza_size, pizza_price):
 def add_drink_order(drink_order, drink_name, drink_type, drink_price):
     if not drink_order:
         drink_order = [
-            {'name': drink_name, 'type': drink_type, 'price': Decimal(drink_price)}}
+            {'name': drink_name, 'type': drink_type, 'price': Decimal(drink_price)}
         ]
     else:
         drink_order.append({'name': drink_name, 'type': drink_type, 'price': Decimal(drink_price)})
