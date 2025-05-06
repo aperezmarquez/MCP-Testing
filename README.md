@@ -20,7 +20,7 @@ This project is not a good or elaborate project, is just a testing area for MCP.
 ## Installation
 
 > [!IMPORTANT]
-> [Python3 is needed to run this project.]
+> Python3 is needed to run this project.
 
 To run this project, you need to create a new virtual environment and install the dependencies.
 
